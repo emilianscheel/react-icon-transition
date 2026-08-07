@@ -1,0 +1,52 @@
+{
+  "name": "icon-transition",
+  "version": "0.1.0",
+  "description": "Smooth, reversible geometry transitions between Lucide React icons.",
+  "license": "MIT",
+  "type": "module",
+  "sideEffects": false,
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "keywords": [
+    "react",
+    "lucide",
+    "icons",
+    "animation",
+    "morph"
+  ],
+  "scripts": {
+    "build": "bun build ./src/index.ts --outdir ./dist --format esm --target browser --external react --external react/jsx-runtime --external lucide-react --sourcemap --banner '\"use client\";' && bunx tsc -p tsconfig.build.json",
+    "check": "bunx tsc --noEmit",
+    "test": "bun test",
+    "pack:dry": "bun pm pack --dry-run",
+    "prepublishOnly": "bun run check && bun test && bun run build"
+  },
+  "peerDependencies": {
+    "lucide-react": ">=0.468.0",
+    "react": ">=18.2.0",
+    "react-dom": ">=18.2.0"
+  },
+  "devDependencies": {
+    "@happy-dom/global-registrator": "latest",
+    "@types/bun": "latest",
+    "@types/react": "latest",
+    "@types/react-dom": "latest",
+    "happy-dom": "latest",
+    "lucide-react": "latest",
+    "react": "latest",
+    "react-dom": "latest",
+    "typescript": "^5.9.3"
+  }
+}
