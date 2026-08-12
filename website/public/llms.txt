@@ -1,0 +1,77 @@
+# react-icon-transition
+
+> Smooth, reversible transitions between Lucide React icons. ~3.8 KB gzip. Client component for React 18+.
+
+Animate any two `lucide-react` icons with `IconTransition`. Supports geometry morph (`liquid`) and scale/blur/fade swap (`blur`). Mid-toggle reverse is continuous. Honors `prefers-reduced-motion`.
+
+## Install
+
+```sh
+bun add icon-transition lucide-react
+# or: npm install icon-transition lucide-react
+```
+
+Peer dependencies: `react`, `react-dom`, `lucide-react`.
+
+## Quick start
+
+```tsx
+"use client";
+
+import { useState } from "react";
+import { Pause, Play } from "lucide-react";
+import { IconTransition } from "icon-transition";
+
+export function PlayerButton() {
+  const [playing, setPlaying] = useState(false);
+
+  return (
+    <button onClick={() => setPlaying((value) => !value)}>
+      <IconTransition
+        status={playing}
+        default={<Play style={{ color: "green" }} />}
+        target={Pause}
+        duration={300}
+        easing="ease-in-out"
+        type="liquid"
+      />
+    </button>
+  );
+}
+```
+
+## API
+
+Exported: `IconTransition`, types `IconTransitionProps`, `IconTransitionSource`, `IconTransitionEasing`, `IconTransitionType`.
+
+| Prop | Type | Default | Notes |
+| --- | --- | --- | --- |
+| `status` | `boolean` | required | `false` shows `default`, `true` shows `target` |
+| `default` | `LucideIcon \| ReactElement<LucideProps>` | required | Outgoing / off-state icon |
+| `target` | `LucideIcon \| ReactElement<LucideProps>` | required | Incoming / on-state icon |
+| `duration` | `number` | `300` | Milliseconds for a full 0→1 transition; mid-toggle uses remaining distance |
+| `easing` | `linear \| ease \| ease-in \| ease-out \| ease-in-out` | `ease-in-out` | Timing curve |
+| `type` | `liquid \| blur` | `liquid` | Transition style |
+
+`default` and `target` accept a Lucide component or a configured element. Endpoint props (color, size, aria) are independent. SSR renders the endpoint selected by `status` (no morph).
+
+### type="liquid"
+
+Morphs sampled SVG stroke geometry between icons. Unmatched strokes collapse to their centroid and fade. Best for outline/stroke Lucide icons.
+
+### type="blur"
+
+Scales down, blurs, and fades out, swaps the icon at the midpoint, then scales up, unblurs, and fades in.
+
+## Behavior notes
+
+- Mark the parent as a Client Component (`"use client"`) when using Next.js App Router.
+- Toggling `status` mid-animation reverses from the current progress.
+- When `prefers-reduced-motion: reduce` is set, the component snaps to the endpoint with no animation.
+- Package name on npm: `icon-transition`. Repository / site: `react-icon-transition`.
+
+## Links
+
+- [GitHub](https://github.com/emilianscheel/react-icon-transition): source, issues, and website
+- [npm package](https://www.npmjs.com/package/icon-transition): install and versions
+- [Demo](https://github.com/emilianscheel/react-icon-transition): interactive liquid / blur examples in the repo website
