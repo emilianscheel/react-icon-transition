@@ -1,6 +1,6 @@
 {
   "name": "react-icon-transition",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Smooth, reversible transitions between any React SVG icons.",
   "license": "MIT",
   "type": "module",
