@@ -155,9 +155,11 @@ export function IconTransition({
       </span>
       {pairs ? (
         <svg {...visibleSvgProps(activeSource)}>
-          {interpolatePaths(pairs, progress).map((path, index) => (
-            <path d={path} key={index} />
-          ))}
+          {interpolatePaths(pairs, progress).map(({ d, opacity }, index) =>
+            opacity < 0.01 ? null : (
+              <path d={d} key={index} strokeOpacity={opacity} />
+            ),
+          )}
         </svg>
       ) : activeResolved}
     </Fragment>

@@ -7,9 +7,18 @@ export interface SampledStroke {
   points: Point[];
 }
 
+/** "out" fades as progress→1; "in" fades as progress→0. */
+export type StrokeFade = "out" | "in";
+
 export interface StrokePair {
   from: Point[];
   to: Point[];
+  fade?: StrokeFade;
+}
+
+export interface InterpolatedPath {
+  d: string;
+  opacity: number;
 }
 
 const GEOMETRY_SELECTOR = "path,line,polyline,polygon,rect,circle,ellipse";
@@ -95,6 +104,7 @@ export function pairStrokes(
       pairs.push({
         from: resamplePoints(fromStroke.points, count),
         to: collapsedStroke(fromStroke, count),
+        fade: "out",
       });
       continue;
     }
@@ -114,6 +124,7 @@ export function pairStrokes(
     pairs.push({
       from: collapsedStroke(targetStroke, count),
       to: resamplePoints(targetStroke.points, count),
+      fade: "in",
     });
   }
 
@@ -124,16 +135,25 @@ function round(value: number): string {
   return Number(value.toFixed(3)).toString();
 }
 
-export function interpolatePaths(pairs: StrokePair[], progress: number): string[] {
+function fadeOpacity(fade: StrokeFade | undefined, progress: number): number {
+  if (fade === "out") return 1 - progress;
+  if (fade === "in") return progress;
+  return 1;
+}
+
+export function interpolatePaths(pairs: StrokePair[], progress: number): InterpolatedPath[] {
   const amount = Math.min(1, Math.max(0, progress));
-  return pairs.map(({ from, to }) => {
+  return pairs.map(({ from, to, fade }) => {
     const points = from.map((point, index) => ({
       x: point.x + (to[index]!.x - point.x) * amount,
       y: point.y + (to[index]!.y - point.y) * amount,
     }));
-    return points
-      .map((point, index) => `${index === 0 ? "M" : "L"}${round(point.x)} ${round(point.y)}`)
-      .join(" ");
+    return {
+      d: points
+        .map((point, index) => `${index === 0 ? "M" : "L"}${round(point.x)} ${round(point.y)}`)
+        .join(" "),
+      opacity: fadeOpacity(fade, amount),
+    };
   });
 }
 
