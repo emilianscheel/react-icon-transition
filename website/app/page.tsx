@@ -164,8 +164,9 @@ export default function Home() {
 
       <div className="absolute inset-0 flex items-center justify-center">
         <div className="flex flex-col items-center gap-3 text-center">
-          <h1 className="text-base font-medium tracking-tight">
-            react-icon-transition
+          <h1 className="flex items-baseline justify-center gap-2 text-base font-medium tracking-tight">
+            <span>react-icon-transition</span>
+            <span className="font-medium text-neutral-400">13 KB</span>
           </h1>
           <InstallBox />
         </div>

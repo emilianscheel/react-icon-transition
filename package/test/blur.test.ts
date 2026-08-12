@@ -7,11 +7,13 @@ describe("blurFrame", () => {
       showTarget: false,
       scale: 1,
       blur: 0,
+      opacity: 1,
     });
     expect(blurFrame(1)).toEqual({
       showTarget: true,
       scale: 1,
       blur: 0,
+      opacity: 1,
     });
   });
 
@@ -20,6 +22,7 @@ describe("blurFrame", () => {
       showTarget: true,
       scale: BLUR_SCALE,
       blur: BLUR_PX,
+      opacity: 0,
     });
   });
 
@@ -27,10 +30,12 @@ describe("blurFrame", () => {
     expect(blurFrame(0.25).showTarget).toBe(false);
     expect(blurFrame(0.25).scale).toBeCloseTo((1 + BLUR_SCALE) / 2);
     expect(blurFrame(0.25).blur).toBeCloseTo(BLUR_PX / 2);
+    expect(blurFrame(0.25).opacity).toBeCloseTo(0.5);
 
     expect(blurFrame(0.75).showTarget).toBe(true);
     expect(blurFrame(0.75).scale).toBeCloseTo((1 + BLUR_SCALE) / 2);
     expect(blurFrame(0.75).blur).toBeCloseTo(BLUR_PX / 2);
+    expect(blurFrame(0.75).opacity).toBeCloseTo(0.5);
   });
 
   test("clamps out-of-range progress", () => {

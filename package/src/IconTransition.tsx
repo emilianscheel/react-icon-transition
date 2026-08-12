@@ -67,11 +67,12 @@ function visibleSvgProps(source: IconTransitionSource): SVGProps<SVGSVGElement> 
   };
 }
 
-function blurWrapperStyle(scale: number, blur: number): CSSProperties {
+function blurWrapperStyle(scale: number, blur: number, opacity: number): CSSProperties {
   return {
     display: "inline-flex",
     transform: `scale(${scale})`,
     filter: blur > 0.01 ? `blur(${blur}px)` : undefined,
+    opacity,
     transformOrigin: "center",
   };
 }
@@ -167,7 +168,7 @@ export function IconTransition({
     return (
       <span
         className="icon-transition icon-transition-blur"
-        style={blurWrapperStyle(frame.scale, frame.blur)}
+        style={blurWrapperStyle(frame.scale, frame.blur, frame.opacity)}
       >
         {icon}
       </span>
