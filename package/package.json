@@ -1,6 +1,6 @@
 {
-  "name": "icon-transition",
-  "version": "0.1.0",
+  "name": "react-icon-transition",
+  "version": "0.1.1",
   "description": "Smooth, reversible geometry transitions between Lucide React icons.",
   "license": "MIT",
   "type": "module",
@@ -24,15 +24,25 @@
     "lucide",
     "icons",
     "animation",
-    "morph"
+    "morph",
+    "transition"
   ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/emilianscheel/react-icon-transition.git"
+  },
+  "bugs": {
+    "url": "https://github.com/emilianscheel/react-icon-transition/issues"
+  },
+  "homepage": "https://github.com/emilianscheel/react-icon-transition#readme",
   "scripts": {
     "build": "bun build ./src/index.ts --outdir ./dist --format esm --target browser --external react --external react/jsx-runtime --external lucide-react --sourcemap --banner '\"use client\";' && bunx tsc -p tsconfig.build.json",
     "check": "bunx tsc --noEmit",
     "test": "bun test",
     "pack:dry": "bun pm pack --dry-run",
     "prepare": "bun run build",
-    "prepublishOnly": "bun run check && bun test && bun run build"
+    "prepublishOnly": "bun run check && bun test && bun run build",
+    "release": "bun ./scripts/release.ts"
   },
   "peerDependencies": {
     "lucide-react": ">=0.468.0",
