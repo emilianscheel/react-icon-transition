@@ -1,15 +1,16 @@
 import type { Metadata } from "next";
+import { GeistMono } from "geist/font/mono";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Icon Transition — Lucide geometry in motion",
-  description: "An interactive test gallery for the icon-transition React package.",
+  title: "react-icon-transition",
+  description: "Smooth, reversible geometry transitions between Lucide React icons.",
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en">
-      <body>{children}</body>
+    <html lang="en" className={GeistMono.variable}>
+      <body className={`${GeistMono.className} antialiased`}>{children}</body>
     </html>
   );
 }

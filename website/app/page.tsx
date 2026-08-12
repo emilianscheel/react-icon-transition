@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
 import {
   Menu,
   Moon,
@@ -12,214 +12,88 @@ import {
   X,
   type LucideIcon,
 } from "lucide-react";
-import {
-  IconTransition,
-  type IconTransitionEasing,
-  type IconTransitionSource,
-} from "icon-transition";
+import { IconTransition, type IconTransitionSource } from "icon-transition";
+import { Button } from "@/components/ui/button";
 
-type Demo = {
-  name: string;
-  description: string;
+function GitHubIcon({ className }: { className?: string }) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="currentColor"
+      aria-hidden="true"
+      className={className}
+    >
+      <path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12" />
+    </svg>
+  );
+}
+
+const demos: {
   from: IconTransitionSource;
   to: LucideIcon;
-  accent: string;
-};
-
-const demos: Demo[] = [
-  {
-    name: "Playback",
-    description: "One closed stroke becomes two parallel lines.",
-    from: <Play aria-hidden="true" />,
-    to: Pause,
-    accent: "lime",
-  },
-  {
-    name: "Theme",
-    description: "A radiant sun folds into a quiet crescent.",
-    from: <Sun aria-hidden="true" />,
-    to: Moon,
-    accent: "violet",
-  },
-  {
-    name: "Audio",
-    description: "Waveforms collapse into a muted mark.",
-    from: <Volume2 aria-hidden="true" />,
-    to: VolumeX,
-    accent: "orange",
-  },
-  {
-    name: "Navigation",
-    description: "Parallel rails resolve into a close action.",
-    from: <Menu aria-hidden="true" />,
-    to: X,
-    accent: "cyan",
-  },
+  label: string;
+}[] = [
+  { from: <Play aria-hidden="true" />, to: Pause, label: "Play Pause" },
+  { from: <Sun aria-hidden="true" />, to: Moon, label: "Sun Moon" },
+  { from: <Volume2 aria-hidden="true" />, to: VolumeX, label: "Volume Mute" },
+  { from: <Menu aria-hidden="true" />, to: X, label: "Menu Close" },
 ];
 
-const easingOptions: IconTransitionEasing[] = [
-  "linear",
-  "ease",
-  "ease-in",
-  "ease-out",
-  "ease-in-out",
-];
-
-function DemoCard({
-  demo,
-  duration,
-  easing,
-  pulse,
+function Demo({
+  from,
+  to,
+  label,
 }: {
-  demo: Demo;
-  duration: number;
-  easing: IconTransitionEasing;
-  pulse: number;
+  from: IconTransitionSource;
+  to: LucideIcon;
+  label: string;
 }) {
   const [active, setActive] = useState(false);
 
-  useEffect(() => {
-    if (pulse === 0) return;
-    const timers = [0, 80, 160, 240, 320].map((delay, index) =>
-      window.setTimeout(() => setActive(index % 2 === 0), delay),
-    );
-    return () => timers.forEach(window.clearTimeout);
-  }, [pulse]);
-
   return (
     <button
-      className={`demo-card accent-${demo.accent}`}
+      type="button"
       onClick={() => setActive((value) => !value)}
       aria-pressed={active}
-      aria-label={`${demo.name}: show ${active ? "default" : "target"} icon`}
+      aria-label={label}
+      className="flex size-16 items-center justify-center text-foreground sm:size-20"
     >
-      <span className="card-number" aria-hidden="true">0{demos.indexOf(demo) + 1}</span>
-      <span className="icon-stage" aria-hidden="true">
-        <IconTransition
-          status={active}
-          default={demo.from}
-          target={demo.to}
-          duration={duration}
-          easing={easing}
-        />
-      </span>
-      <span className="card-copy">
-        <strong>{demo.name}</strong>
-        <span>{demo.description}</span>
-      </span>
-      <span className="state-pill">{active ? "Target" : "Default"}</span>
+      <IconTransition status={active} default={from} target={to} />
     </button>
   );
 }
 
 export default function Home() {
-  const [duration, setDuration] = useState(300);
-  const [easing, setEasing] = useState<IconTransitionEasing>("ease-in-out");
-  const [pulse, setPulse] = useState(0);
-  const [copied, setCopied] = useState(false);
-  const copyTimer = useRef<number | null>(null);
-
-  useEffect(() => () => {
-    if (copyTimer.current !== null) window.clearTimeout(copyTimer.current);
-  }, []);
-
-  const code = `<IconTransition\n  status={isPlaying}\n  default={<Play style={{ color: "green" }} />}\n  target={Pause}\n  duration={${duration}}\n  easing="${easing}"\n/>`;
-
-  async function copyCode() {
-    await navigator.clipboard.writeText(code);
-    setCopied(true);
-    if (copyTimer.current !== null) window.clearTimeout(copyTimer.current);
-    copyTimer.current = window.setTimeout(() => setCopied(false), 1600);
-  }
-
   return (
-    <main>
-      <nav aria-label="Primary">
-        <a className="wordmark" href="#top" aria-label="Icon Transition home">
-          <span className="mark" aria-hidden="true"><span /><span /></span>
-          icon-transition
+    <main className="relative flex min-h-svh flex-col items-center justify-center gap-10 bg-white px-6 text-black">
+      <Button
+        asChild
+        variant="outline"
+        size="icon"
+        className="absolute top-4 right-4 rounded-full sm:top-6 sm:right-6"
+      >
+        <a
+          href="https://github.com/emilianscheel/react-icon-transition"
+          target="_blank"
+          rel="noreferrer"
+          aria-label="GitHub"
+        >
+          <GitHubIcon className="size-4" />
         </a>
-        <a className="docs-link" href="#usage">Usage <span aria-hidden="true">↘</span></a>
-      </nav>
+      </Button>
 
-      <section className="hero" id="top">
-        <div className="eyebrow"><span /> Geometry, not opacity</div>
-        <h1>Icons that<br /><em>change their mind.</em></h1>
-        <p className="lede">
-          A tiny React component for smooth, reversible transitions between any two Lucide icons.
-        </p>
-        <div className="hero-actions">
-          <button className="primary-action" onClick={() => setPulse((value) => value + 1)}>
-            Stress test transitions
-          </button>
-          <code>bun add icon-transition</code>
-        </div>
-      </section>
+      <div className="flex flex-col items-center gap-2 text-center">
+        <code className="text-sm sm:text-base">bun install react-icon-transition</code>
+        <h1 className="text-lg font-medium tracking-tight sm:text-xl">
+          react-icon-transition
+        </h1>
+      </div>
 
-      <section className="lab" aria-labelledby="lab-heading">
-        <div className="section-heading">
-          <div>
-            <span className="section-kicker">Interactive lab</span>
-            <h2 id="lab-heading">Tap any transition</h2>
-          </div>
-          <p>Toggle slowly to inspect the shape, or stress test to reverse every animation mid-flight.</p>
-        </div>
-
-        <div className="controls" aria-label="Animation controls">
-          <label>
-            <span>Duration <output>{duration}ms</output></span>
-            <input
-              type="range"
-              min="0"
-              max="1000"
-              step="50"
-              value={duration}
-              onChange={(event) => setDuration(Number(event.target.value))}
-            />
-          </label>
-          <label>
-            <span>Easing</span>
-            <select value={easing} onChange={(event) => setEasing(event.target.value as IconTransitionEasing)}>
-              {easingOptions.map((option) => <option key={option}>{option}</option>)}
-            </select>
-          </label>
-          <button className="stress-button" onClick={() => setPulse((value) => value + 1)}>
-            Rapid reverse ×5
-          </button>
-        </div>
-
-        <div className="gallery">
-          {demos.map((demo) => (
-            <DemoCard key={demo.name} demo={demo} duration={duration} easing={easing} pulse={pulse} />
-          ))}
-        </div>
-
-        <div className="motion-note">
-          <span aria-hidden="true">◎</span>
-          <p><strong>Motion, respectfully.</strong> If your system requests reduced motion, every transition becomes an instant, stable swap.</p>
-        </div>
-      </section>
-
-      <section className="usage" id="usage" aria-labelledby="usage-heading">
-        <div>
-          <span className="section-kicker">One component</span>
-          <h2 id="usage-heading">Drop it in.<br />Toggle a boolean.</h2>
-          <p>Pass icon components or configured elements. Each endpoint keeps its own color, size, stroke, class, and accessible label.</p>
-        </div>
-        <div className="code-window">
-          <div className="code-bar">
-            <span>player.tsx</span>
-            <button onClick={copyCode}>{copied ? "Copied" : "Copy"}</button>
-          </div>
-          <pre><code>{code}</code></pre>
-        </div>
-      </section>
-
-      <footer>
-        <span>icon-transition</span>
-        <span>Built for Lucide · Powered by Bun</span>
-      </footer>
+      <div className="flex flex-wrap items-center justify-center gap-4 sm:gap-8">
+        {demos.map((demo) => (
+          <Demo key={demo.label} {...demo} />
+        ))}
+      </div>
     </main>
   );
 }
-
