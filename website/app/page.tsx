@@ -19,7 +19,6 @@ import {
   type IconTransitionSource,
   type IconTransitionType,
 } from "react-icon-transition";
-import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 const INSTALL_CMD = "bun install react-icon-transition";
@@ -292,44 +291,37 @@ export default function Home() {
 
   return (
     <main className="relative min-h-svh bg-white px-6 text-sm text-black">
-      <div className="absolute top-4 right-4 z-10 flex items-center gap-2 sm:top-6 sm:right-6">
-        <Button
-          asChild
-          variant="outline"
-          size="icon"
-          className="cursor-pointer rounded-full"
+      <div className="absolute top-4 right-4 z-10 flex animate-fade-up items-center gap-1 sm:top-6 sm:right-6 [animation-delay:80ms]">
+        <a
+          href="/llms.txt"
+          target="_blank"
+          rel="noreferrer"
+          aria-label="llms.txt"
+          className="flex size-9 cursor-pointer items-center justify-center rounded-full text-foreground transition-colors hover:bg-neutral-100"
         >
-          <a href="/llms.txt" target="_blank" rel="noreferrer" aria-label="llms.txt">
-            <FileText className="size-4" />
-          </a>
-        </Button>
-        <Button
-          asChild
-          variant="outline"
-          size="icon"
-          className="cursor-pointer rounded-full"
+          <FileText className="size-4" />
+        </a>
+        <a
+          href="https://github.com/emilianscheel/react-icon-transition"
+          target="_blank"
+          rel="noreferrer"
+          aria-label="GitHub"
+          className="flex size-9 cursor-pointer items-center justify-center rounded-full text-foreground transition-colors hover:bg-neutral-100"
         >
-          <a
-            href="https://github.com/emilianscheel/react-icon-transition"
-            target="_blank"
-            rel="noreferrer"
-            aria-label="GitHub"
-          >
-            <GitHubIcon className="size-4" />
-          </a>
-        </Button>
+          <GitHubIcon className="size-4" />
+        </a>
       </div>
 
       <div className="absolute inset-0 flex items-center justify-center">
         <div className="flex w-full max-w-md flex-col items-center gap-5 text-center">
-          <h1 className="flex items-baseline justify-center gap-2 text-base font-medium tracking-tight">
+          <h1 className="flex animate-fade-up items-baseline justify-center gap-2 text-base font-medium tracking-tight [animation-delay:40ms]">
             <span>react-icon-transition</span>
             <span className="font-medium text-neutral-400">~3.8 KB gzip</span>
           </h1>
-          <p className="text-xs text-neutral-400 sm:text-sm">
+          <p className="animate-fade-up text-xs text-neutral-400 [animation-delay:120ms] sm:text-sm">
             animate any svg icon in react
           </p>
-          <div className="flex w-full flex-col gap-5">
+          <div className="flex w-full animate-fade-up flex-col gap-5 [animation-delay:200ms]">
             <InstallBox />
             <ExampleCode
               type={type}
@@ -340,7 +332,7 @@ export default function Home() {
         </div>
       </div>
 
-      <div className="absolute inset-x-0 bottom-0 flex flex-col items-center gap-4 pb-8 sm:pb-10">
+      <div className="absolute inset-x-0 bottom-0 flex animate-fade-up flex-col items-center gap-4 pb-8 [animation-delay:280ms] sm:pb-10">
         <Tabs
           value={type}
           onValueChange={(value) => {
