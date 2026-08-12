@@ -19,6 +19,7 @@ import {
   type IconTransitionType,
 } from "icon-transition";
 import { Button } from "@/components/ui/button";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 const INSTALL_CMD = "bun install react-icon-transition";
 
@@ -93,26 +94,17 @@ function Demo({
   );
 }
 
-function DemoRow({
-  type,
-  title,
-}: {
-  type: IconTransitionType;
-  title: string;
-}) {
+function DemoGrid({ type }: { type: IconTransitionType }) {
   return (
-    <div className="flex flex-col items-center gap-2">
-      <p className="text-[10px] tracking-wide text-neutral-500 uppercase">{title}</p>
-      <div className="flex flex-wrap items-center justify-center gap-1.5 sm:gap-2">
-        {demos.map((demo) => (
-          <Demo
-            key={`${type}-${demo.label}`}
-            {...demo}
-            type={type}
-            label={`${demo.label} ${type}`}
-          />
-        ))}
-      </div>
+    <div className="flex flex-wrap items-center justify-center gap-1.5 sm:gap-2">
+      {demos.map((demo) => (
+        <Demo
+          key={`${type}-${demo.label}`}
+          {...demo}
+          type={type}
+          label={`${demo.label} ${type}`}
+        />
+      ))}
     </div>
   );
 }
@@ -153,12 +145,12 @@ function InstallBox() {
 
 export default function Home() {
   return (
-    <main className="relative flex min-h-svh flex-col items-center justify-center gap-8 bg-white px-6 text-sm text-black">
+    <main className="relative min-h-svh bg-white px-6 text-sm text-black">
       <Button
         asChild
         variant="outline"
         size="icon"
-        className="absolute top-4 right-4 cursor-pointer rounded-full sm:top-6 sm:right-6"
+        className="absolute top-4 right-4 z-10 cursor-pointer rounded-full sm:top-6 sm:right-6"
       >
         <a
           href="https://github.com/emilianscheel/react-icon-transition"
@@ -170,16 +162,28 @@ export default function Home() {
         </a>
       </Button>
 
-      <div className="flex flex-col items-center gap-3 text-center">
-        <h1 className="text-base font-medium tracking-tight">
-          react-icon-transition
-        </h1>
-        <InstallBox />
+      <div className="absolute inset-0 flex items-center justify-center">
+        <div className="flex flex-col items-center gap-3 text-center">
+          <h1 className="text-base font-medium tracking-tight">
+            react-icon-transition
+          </h1>
+          <InstallBox />
+        </div>
       </div>
 
-      <div className="flex flex-col items-center gap-6">
-        <DemoRow type="liquid" title="liquid" />
-        <DemoRow type="blur" title="blur" />
+      <div className="absolute inset-x-0 bottom-0 flex justify-center pb-8 sm:pb-10">
+        <Tabs defaultValue="liquid" className="items-center">
+          <TabsList>
+            <TabsTrigger value="liquid">liquid</TabsTrigger>
+            <TabsTrigger value="blur">blur</TabsTrigger>
+          </TabsList>
+          <TabsContent value="liquid" className="mt-4">
+            <DemoGrid type="liquid" />
+          </TabsContent>
+          <TabsContent value="blur" className="mt-4">
+            <DemoGrid type="blur" />
+          </TabsContent>
+        </Tabs>
       </div>
     </main>
   );
