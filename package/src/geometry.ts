@@ -22,58 +22,26 @@ export interface InterpolatedPath {
 }
 
 const GEOMETRY_SELECTOR = "path,line,polyline,polygon,rect,circle,ellipse";
+const SAMPLE_COUNT = 24;
 
 export function centroid(points: Point[]): Point {
   if (points.length === 0) return { x: 12, y: 12 };
-  const total = points.reduce(
-    (sum, point) => ({ x: sum.x + point.x, y: sum.y + point.y }),
-    { x: 0, y: 0 },
-  );
-  return { x: total.x / points.length, y: total.y / points.length };
+  let x = 0;
+  let y = 0;
+  for (const point of points) {
+    x += point.x;
+    y += point.y;
+  }
+  return { x: x / points.length, y: y / points.length };
 }
 
 function distance(a: Point, b: Point): number {
   return Math.hypot(a.x - b.x, a.y - b.y);
 }
 
-export function resamplePoints(points: Point[], count: number): Point[] {
-  if (count <= 0) return [];
-  if (points.length === 0) return Array.from({ length: count }, () => ({ x: 12, y: 12 }));
-  if (points.length === 1) return Array.from({ length: count }, () => ({ ...points[0]! }));
-
-  const segments: number[] = [];
-  let total = 0;
-  for (let index = 1; index < points.length; index += 1) {
-    const length = distance(points[index - 1]!, points[index]!);
-    segments.push(length);
-    total += length;
-  }
-
-  if (total === 0) return Array.from({ length: count }, () => ({ ...points[0]! }));
-
-  return Array.from({ length: count }, (_, index) => {
-    const desired = count === 1 ? 0 : (index / (count - 1)) * total;
-    let elapsed = 0;
-    for (let segmentIndex = 0; segmentIndex < segments.length; segmentIndex += 1) {
-      const length = segments[segmentIndex]!;
-      if (elapsed + length >= desired || segmentIndex === segments.length - 1) {
-        const start = points[segmentIndex]!;
-        const end = points[segmentIndex + 1]!;
-        const amount = length === 0 ? 0 : (desired - elapsed) / length;
-        return {
-          x: start.x + (end.x - start.x) * amount,
-          y: start.y + (end.y - start.y) * amount,
-        };
-      }
-      elapsed += length;
-    }
-    return { ...points[points.length - 1]! };
-  });
-}
-
-function collapsedStroke(stroke: SampledStroke, count: number): Point[] {
+function collapsedStroke(stroke: SampledStroke): Point[] {
   const center = centroid(stroke.points);
-  return Array.from({ length: count }, () => ({ ...center }));
+  return Array.from({ length: stroke.points.length }, () => ({ ...center }));
 }
 
 export function pairStrokes(
@@ -100,30 +68,26 @@ export function pairStrokes(
     }
 
     if (closestIndex === undefined) {
-      const count = Math.max(2, fromStroke.points.length);
       pairs.push({
-        from: resamplePoints(fromStroke.points, count),
-        to: collapsedStroke(fromStroke, count),
+        from: fromStroke.points,
+        to: collapsedStroke(fromStroke),
         fade: "out",
       });
       continue;
     }
 
     remainingTargets.delete(closestIndex);
-    const targetStroke = toStrokes[closestIndex]!;
-    const count = Math.max(2, fromStroke.points.length, targetStroke.points.length);
     pairs.push({
-      from: resamplePoints(fromStroke.points, count),
-      to: resamplePoints(targetStroke.points, count),
+      from: fromStroke.points,
+      to: toStrokes[closestIndex]!.points,
     });
   }
 
   for (const targetIndex of remainingTargets) {
     const targetStroke = toStrokes[targetIndex]!;
-    const count = Math.max(2, targetStroke.points.length);
     pairs.push({
-      from: collapsedStroke(targetStroke, count),
-      to: resamplePoints(targetStroke.points, count),
+      from: collapsedStroke(targetStroke),
+      to: targetStroke.points,
       fade: "in",
     });
   }
@@ -161,9 +125,8 @@ function sampleGeometry(element: SVGGeometryElement): SampledStroke | null {
   try {
     const length = element.getTotalLength();
     if (!Number.isFinite(length) || length <= 0) return null;
-    const count = Math.min(64, Math.max(8, Math.ceil(length / 1.25)));
-    const points = Array.from({ length: count }, (_, index) => {
-      const point = element.getPointAtLength((index / (count - 1)) * length);
+    const points = Array.from({ length: SAMPLE_COUNT }, (_, index) => {
+      const point = element.getPointAtLength((index / (SAMPLE_COUNT - 1)) * length);
       return { x: point.x, y: point.y };
     });
     return { points };
@@ -178,4 +141,3 @@ export function sampleSvg(svg: SVGSVGElement | null): SampledStroke[] {
     .map(sampleGeometry)
     .filter((stroke): stroke is SampledStroke => stroke !== null);
 }
-

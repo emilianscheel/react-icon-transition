@@ -316,7 +316,7 @@ export default function Home() {
         <div className="flex w-full max-w-md flex-col items-center gap-5 text-center">
           <h1 className="flex animate-fade-up items-baseline justify-center gap-2 text-base font-medium tracking-tight [animation-delay:40ms]">
             <span>react-icon-transition</span>
-            <span className="font-medium text-neutral-400">~3.8 KB gzip</span>
+            <span className="font-medium text-neutral-400">~2.2 KB gzip</span>
           </h1>
           <p className="animate-fade-up text-xs text-neutral-400 [animation-delay:120ms] sm:text-sm">
             animate any svg icon in react

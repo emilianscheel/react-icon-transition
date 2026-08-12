@@ -32,7 +32,7 @@ export function getEasing(easing: IconTransitionEasing): (value: number) => numb
 export function getAnimationDuration(
   from: number,
   to: number,
-  duration: number,
+  duration: number | undefined,
 ): number {
   return Math.abs(to - from) * normalizeDuration(duration);
 }

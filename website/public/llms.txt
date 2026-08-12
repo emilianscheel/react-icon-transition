@@ -1,6 +1,6 @@
 # react-icon-transition
 
-> Smooth, reversible transitions between Lucide React icons. ~3.8 KB gzip. Client component for React 18+.
+> Smooth, reversible transitions between Lucide React icons. ~2.2 KB gzip. Client component for React 18+.
 
 Animate any two `lucide-react` icons with `IconTransition`. Supports geometry morph (`liquid`) and scale/blur/fade swap (`blur`). Mid-toggle reverse is continuous. Honors `prefers-reduced-motion`.
 

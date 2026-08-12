@@ -17,8 +17,6 @@ export interface InterpolatedPath {
     opacity: number;
 }
 export declare function centroid(points: Point[]): Point;
-export declare function resamplePoints(points: Point[], count: number): Point[];
 export declare function pairStrokes(fromStrokes: SampledStroke[], toStrokes: SampledStroke[]): StrokePair[];
 export declare function interpolatePaths(pairs: StrokePair[], progress: number): InterpolatedPath[];
 export declare function sampleSvg(svg: SVGSVGElement | null): SampledStroke[];
-//# sourceMappingURL=geometry.d.ts.map

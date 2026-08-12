@@ -12,7 +12,6 @@ import {
   DEFAULT_EASING,
   getAnimationDuration,
   getEasing,
-  normalizeDuration,
 } from "./easing";
 import { interpolatePaths, pairStrokes, sampleSvg } from "./geometry";
 import type { StrokePair } from "./geometry";
@@ -128,7 +127,7 @@ export function IconTransition({
     const totalDuration = getAnimationDuration(
       startProgress,
       targetProgress,
-      normalizeDuration(duration),
+      duration,
     );
 
     if (prefersReducedMotion() || totalDuration === 0 || startProgress === targetProgress) {

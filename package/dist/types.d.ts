@@ -11,4 +11,3 @@ export interface IconTransitionProps {
     easing?: IconTransitionEasing;
     type?: IconTransitionType;
 }
-//# sourceMappingURL=types.d.ts.map

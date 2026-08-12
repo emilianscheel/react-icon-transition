@@ -29,7 +29,28 @@ describe("animation controls", () => {
   });
 
   test("detects the reduced-motion preference", () => {
-    expect(prefersReducedMotion(() => ({ matches: true }))).toBe(true);
-    expect(prefersReducedMotion(() => ({ matches: false }))).toBe(false);
+    const original = globalThis.window;
+    const install = (matches: boolean) => {
+      Object.defineProperty(globalThis, "window", {
+        configurable: true,
+        value: {
+          matchMedia: () => ({ matches }),
+        },
+      });
+    };
+
+    install(true);
+    expect(prefersReducedMotion()).toBe(true);
+    install(false);
+    expect(prefersReducedMotion()).toBe(false);
+
+    if (original === undefined) {
+      Reflect.deleteProperty(globalThis, "window");
+    } else {
+      Object.defineProperty(globalThis, "window", {
+        configurable: true,
+        value: original,
+      });
+    }
   });
 });
