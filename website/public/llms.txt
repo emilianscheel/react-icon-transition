@@ -7,8 +7,8 @@ Animate any two `lucide-react` icons with `IconTransition`. Supports geometry mo
 ## Install
 
 ```sh
-bun add icon-transition lucide-react
-# or: npm install icon-transition lucide-react
+bun add react-icon-transition lucide-react
+# or: npm install react-icon-transition lucide-react
 ```
 
 Peer dependencies: `react`, `react-dom`, `lucide-react`.
@@ -20,7 +20,7 @@ Peer dependencies: `react`, `react-dom`, `lucide-react`.
 
 import { useState } from "react";
 import { Pause, Play } from "lucide-react";
-import { IconTransition } from "icon-transition";
+import { IconTransition } from "react-icon-transition";
 
 export function PlayerButton() {
   const [playing, setPlaying] = useState(false);
@@ -68,10 +68,10 @@ Scales down, blurs, and fades out, swaps the icon at the midpoint, then scales u
 - Mark the parent as a Client Component (`"use client"`) when using Next.js App Router.
 - Toggling `status` mid-animation reverses from the current progress.
 - When `prefers-reduced-motion: reduce` is set, the component snaps to the endpoint with no animation.
-- Package name on npm: `icon-transition`. Repository / site: `react-icon-transition`.
+- Package name on npm: `react-icon-transition`.
 
 ## Links
 
 - [GitHub](https://github.com/emilianscheel/react-icon-transition): source, issues, and website
-- [npm package](https://www.npmjs.com/package/icon-transition): install and versions
+- [npm package](https://www.npmjs.com/package/react-icon-transition): install and versions
 - [Demo](https://github.com/emilianscheel/react-icon-transition): interactive liquid / blur examples in the repo website

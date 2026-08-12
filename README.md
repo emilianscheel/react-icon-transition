@@ -1,8 +1,8 @@
-# icon-transition workspace
+# react-icon-transition workspace
 
 This repository contains two independent Bun projects:
 
-- `package/` — the publishable `icon-transition` React package.
+- `package/` — the publishable `react-icon-transition` React package.
 - `website/` — a Next.js interactive test gallery using the local package.
 
 ## Start the gallery
@@ -35,14 +35,12 @@ bun run build
 
 ## Publish
 
-Confirm that the `icon-transition` name is available and that the metadata in
-`package/package.json` is correct. Then authenticate with npm and run:
+Authenticate with npm, then from `package/`:
 
 ```sh
-cd package
-bun run prepublishOnly
-npm publish --access public
+bun run release --patch
+bun run release --minor
+bun run release --major
 ```
 
-Publishing itself is intentionally not automated by this repository.
-
+This bumps the version, runs checks/tests/build, publishes to npm, and creates a local git commit + `vX.Y.Z` tag. Push afterwards with `git push && git push --tags`.

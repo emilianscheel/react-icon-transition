@@ -6,11 +6,11 @@ const root = path.dirname(fileURLToPath(import.meta.url));
 
 const nextConfig: NextConfig = {
   agentRules: false,
-  transpilePackages: ["icon-transition"],
+  transpilePackages: ["react-icon-transition"],
   webpack: (config) => {
     config.resolve.alias = {
       ...config.resolve.alias,
-      "icon-transition": path.resolve(root, "../package/src/index.ts"),
+      "react-icon-transition": path.resolve(root, "../package/src/index.ts"),
     };
     return config;
   },

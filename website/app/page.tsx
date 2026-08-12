@@ -18,7 +18,7 @@ import {
   IconTransition,
   type IconTransitionSource,
   type IconTransitionType,
-} from "icon-transition";
+} from "react-icon-transition";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 

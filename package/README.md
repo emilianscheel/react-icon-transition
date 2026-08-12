@@ -1,11 +1,11 @@
-# icon-transition
+# react-icon-transition
 
 Smooth, reversible transitions between any two `lucide-react` icons — geometry morph (`liquid`) or scale-and-blur swap (`blur`).
 
 ## Install
 
 ```sh
-bun add icon-transition lucide-react
+bun add react-icon-transition lucide-react
 ```
 
 ## Use
@@ -15,7 +15,7 @@ bun add icon-transition lucide-react
 
 import { useState } from "react";
 import { Pause, Play } from "lucide-react";
-import { IconTransition } from "icon-transition";
+import { IconTransition } from "react-icon-transition";
 
 export function PlayerButton() {
   const [playing, setPlaying] = useState(false);
@@ -52,6 +52,14 @@ mid-animation, and honors `prefers-reduced-motion`.
 
 `liquid` morphs stroke geometry between icons. `blur` scales down and blurs, swaps the icon at the midpoint, then unblurs and scales back up.
 
+## Release
+
+```sh
+bun run release --patch
+bun run release --minor
+bun run release --major
+```
+
 ## Develop
 
 ```sh
@@ -61,4 +69,3 @@ bun run check
 bun run build
 bun run pack:dry
 ```
-
