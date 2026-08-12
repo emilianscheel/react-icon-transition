@@ -100,7 +100,7 @@ if (publishCode !== 0) {
 
 const tag = `v${next}`;
 const repoRoot = resolve(root, "..");
-await $`git add package/package.json`.cwd(repoRoot);
+await $`git add package/package.json package/dist`.cwd(repoRoot);
 await $`git commit -m ${`Release ${tag}.`}`.cwd(repoRoot);
 await $`git tag ${tag}`.cwd(repoRoot);
 

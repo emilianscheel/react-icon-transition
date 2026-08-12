@@ -25,9 +25,6 @@
     "paths": {
       "@/*": [
         "./*"
-      ],
-      "react-icon-transition": [
-        "../package/src/index.ts"
       ]
     }
   },

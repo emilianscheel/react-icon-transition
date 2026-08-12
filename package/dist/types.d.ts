@@ -1,0 +1,14 @@
+import type { LucideIcon, LucideProps } from "lucide-react";
+import type { ReactElement } from "react";
+export type IconTransitionSource = LucideIcon | ReactElement<LucideProps, LucideIcon>;
+export type IconTransitionEasing = "linear" | "ease" | "ease-in" | "ease-out" | "ease-in-out";
+export type IconTransitionType = "liquid" | "blur";
+export interface IconTransitionProps {
+    status: boolean;
+    default: IconTransitionSource;
+    target: IconTransitionSource;
+    duration?: number;
+    easing?: IconTransitionEasing;
+    type?: IconTransitionType;
+}
+//# sourceMappingURL=types.d.ts.map
