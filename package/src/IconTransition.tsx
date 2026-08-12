@@ -12,9 +12,18 @@ import {
   DEFAULT_EASING,
   getAnimationDuration,
   getEasing,
+  normalizeDuration,
 } from "./easing";
-import { interpolatePaths, pairStrokes, sampleSvg } from "./geometry";
-import type { StrokePair } from "./geometry";
+import {
+  interpolatePaths,
+  isFillOnlyIcon,
+  mapStroke,
+  pairStrokes,
+  parseViewBox,
+  sampleSvg,
+  viewBoxString,
+} from "./geometry";
+import type { StrokePair, ViewBox } from "./geometry";
 import { prefersReducedMotion } from "./motion";
 import { resolveSource, sourceProps, sourceType } from "./source";
 import type { IconTransitionProps, IconTransitionSource } from "./types";
@@ -30,39 +39,72 @@ const hiddenStyle = {
   pointerEvents: "none",
 } as const;
 
-function visibleSvgProps(source: IconTransitionSource): SVGProps<SVGSVGElement> {
+function readAttr(svg: SVGSVGElement | null, name: string): string | null {
+  return svg?.getAttribute(name) ?? null;
+}
+
+function morphSvgProps(
+  svg: SVGSVGElement | null,
+  source: IconTransitionSource,
+  viewBox: ViewBox,
+): SVGProps<SVGSVGElement> {
   const props = sourceProps(source);
   const {
-    size = 24,
-    color = "currentColor",
-    strokeWidth = 2,
-    absoluteStrokeWidth,
+    size,
+    color,
+    strokeWidth,
     className,
     children: _children,
+    width: widthProp,
+    height: heightProp,
     ...rest
   } = props;
-  const numericSize = typeof size === "number" ? size : Number.parseFloat(String(size));
-  const renderedStrokeWidth = absoluteStrokeWidth && Number.isFinite(numericSize)
-    ? (Number(strokeWidth) * 24) / numericSize
-    : strokeWidth;
-  const hasAccessibleName = Boolean(
-    props["aria-label"] || props["aria-labelledby"],
-  );
+
+  const width = (widthProp as string | number | undefined)
+    ?? (size as string | number | undefined)
+    ?? readAttr(svg, "width")
+    ?? viewBox.width;
+  const height = (heightProp as string | number | undefined)
+    ?? (size as string | number | undefined)
+    ?? readAttr(svg, "height")
+    ?? viewBox.height;
+
+  const fill = readAttr(svg, "fill") ?? "none";
+  const stroke = readAttr(svg, "stroke")
+    ?? (typeof color === "string" ? color : null)
+    ?? "currentColor";
+  const renderedStrokeWidth = readAttr(svg, "stroke-width")
+    ?? (strokeWidth as string | number | undefined)
+    ?? 2;
+  const strokeLinecap = readAttr(svg, "stroke-linecap")
+    ?? (typeof props.strokeLinecap === "string" ? props.strokeLinecap : null)
+    ?? "round";
+  const strokeLinejoin = readAttr(svg, "stroke-linejoin")
+    ?? (typeof props.strokeLinejoin === "string" ? props.strokeLinejoin : null)
+    ?? "round";
+
+  const hasAccessibleName = Boolean(props["aria-label"] || props["aria-labelledby"]);
+  const classNames = [
+    "icon-transition",
+    typeof className === "string" ? className : null,
+  ].filter(Boolean).join(" ");
 
   return {
-    ...rest,
+    ...(rest as SVGProps<SVGSVGElement>),
     xmlns: "http://www.w3.org/2000/svg",
-    width: size,
-    height: size,
-    viewBox: "0 0 24 24",
-    fill: "none",
-    stroke: color,
+    width,
+    height,
+    viewBox: viewBoxString(viewBox),
+    fill,
+    stroke,
     strokeWidth: renderedStrokeWidth,
-    strokeLinecap: props.strokeLinecap ?? "round",
-    strokeLinejoin: props.strokeLinejoin ?? "round",
-    "aria-hidden": props["aria-hidden"] ?? (hasAccessibleName ? undefined : true),
-    role: props.role ?? (hasAccessibleName ? "img" : undefined),
-    className: ["lucide", "icon-transition", className].filter(Boolean).join(" "),
+    strokeLinecap: strokeLinecap as SVGProps<SVGSVGElement>["strokeLinecap"],
+    strokeLinejoin: strokeLinejoin as SVGProps<SVGSVGElement>["strokeLinejoin"],
+    "aria-hidden": (props["aria-hidden"] as SVGProps<SVGSVGElement>["aria-hidden"])
+      ?? (hasAccessibleName ? undefined : true),
+    role: (props.role as SVGProps<SVGSVGElement>["role"])
+      ?? (hasAccessibleName ? "img" : undefined),
+    className: classNames,
   };
 }
 
@@ -76,6 +118,8 @@ function blurWrapperStyle(scale: number, blur: number, opacity: number): CSSProp
   };
 }
 
+type LiquidMode = "pending" | "morph" | "blur";
+
 export function IconTransition({
   status,
   default: defaultSource,
@@ -84,9 +128,16 @@ export function IconTransition({
   easing = DEFAULT_EASING,
   type = DEFAULT_TYPE,
 }: IconTransitionProps) {
-  const isLiquid = type === "liquid";
+  const wantsLiquid = type === "liquid";
   const [mounted, setMounted] = useState(false);
+  const [liquidMode, setLiquidMode] = useState<LiquidMode>("pending");
   const [pairs, setPairs] = useState<StrokePair[] | null>(null);
+  const [sharedViewBox, setSharedViewBox] = useState<ViewBox>({
+    x: 0,
+    y: 0,
+    width: 24,
+    height: 24,
+  });
   const [progress, setProgress] = useState(status ? 1 : 0);
   const progressRef = useRef(status ? 1 : 0);
   const frameRef = useRef<number | null>(null);
@@ -96,6 +147,8 @@ export function IconTransition({
   const targetGeometryType = sourceType(targetSource);
   const resolvedDefault = useMemo(() => resolveSource(defaultSource), [defaultSource]);
   const resolvedTarget = useMemo(() => resolveSource(targetSource), [targetSource]);
+  const useBlur = type === "blur" || liquidMode === "blur";
+  const useMorph = wantsLiquid && liquidMode === "morph" && pairs !== null;
 
   useEffect(() => {
     setMounted(true);
@@ -105,21 +158,52 @@ export function IconTransition({
   }, []);
 
   useLayoutEffect(() => {
-    if (!mounted || !isLiquid) {
-      if (!isLiquid) setPairs(null);
+    if (!mounted) return;
+
+    if (!wantsLiquid) {
+      setPairs(null);
+      setLiquidMode("blur");
+      const initialProgress = status ? 1 : 0;
+      progressRef.current = initialProgress;
+      setProgress(initialProgress);
       return;
     }
+
     const defaultSvg = defaultHostRef.current?.querySelector("svg") ?? null;
     const targetSvg = targetHostRef.current?.querySelector("svg") ?? null;
-    const nextPairs = pairStrokes(sampleSvg(defaultSvg), sampleSvg(targetSvg));
-    setPairs(nextPairs.length > 0 ? nextPairs : null);
+
+    if (isFillOnlyIcon(defaultSvg) && isFillOnlyIcon(targetSvg)) {
+      setPairs(null);
+      setLiquidMode("blur");
+      const initialProgress = status ? 1 : 0;
+      progressRef.current = initialProgress;
+      setProgress(initialProgress);
+      return;
+    }
+
+    const sharedBox = parseViewBox(defaultSvg);
+    const fromStrokes = sampleSvg(defaultSvg);
+    const toStrokes = sampleSvg(targetSvg).map((stroke) =>
+      mapStroke(stroke, parseViewBox(targetSvg), sharedBox),
+    );
+    const nextPairs = pairStrokes(fromStrokes, toStrokes);
+
+    if (nextPairs.length === 0) {
+      setPairs(null);
+      setLiquidMode("blur");
+    } else {
+      setSharedViewBox(sharedBox);
+      setPairs(nextPairs);
+      setLiquidMode("morph");
+    }
+
     const initialProgress = status ? 1 : 0;
     progressRef.current = initialProgress;
     setProgress(initialProgress);
-  }, [mounted, isLiquid, defaultGeometryType, targetGeometryType]);
+  }, [mounted, wantsLiquid, defaultGeometryType, targetGeometryType]);
 
   useEffect(() => {
-    if (isLiquid && !pairs) return;
+    if (wantsLiquid && liquidMode === "pending") return;
     if (frameRef.current !== null) cancelAnimationFrame(frameRef.current);
 
     const targetProgress = status ? 1 : 0;
@@ -127,7 +211,7 @@ export function IconTransition({
     const totalDuration = getAnimationDuration(
       startProgress,
       targetProgress,
-      duration,
+      normalizeDuration(duration),
     );
 
     if (prefersReducedMotion() || totalDuration === 0 || startProgress === targetProgress) {
@@ -154,14 +238,17 @@ export function IconTransition({
     return () => {
       if (frameRef.current !== null) cancelAnimationFrame(frameRef.current);
     };
-  }, [status, pairs, duration, easing, isLiquid]);
+  }, [status, pairs, duration, easing, wantsLiquid, liquidMode]);
 
   const activeSource = status ? targetSource : defaultSource;
   const activeResolved = status ? resolvedTarget : resolvedDefault;
+  const activeSvg = status
+    ? (targetHostRef.current?.querySelector("svg") ?? null)
+    : (defaultHostRef.current?.querySelector("svg") ?? null);
 
   if (!mounted) return activeResolved;
 
-  if (!isLiquid) {
+  const blurContent = () => {
     const frame = blurFrame(progress);
     const icon = frame.showTarget ? resolvedTarget : resolvedDefault;
     return (
@@ -172,7 +259,23 @@ export function IconTransition({
         {icon}
       </span>
     );
-  }
+  };
+
+  if (useBlur && !wantsLiquid) return blurContent();
+
+  const visible = useBlur
+    ? blurContent()
+    : useMorph && pairs
+      ? (
+        <svg {...morphSvgProps(activeSvg, activeSource, sharedViewBox)}>
+          {interpolatePaths(pairs, progress).map(({ d, opacity }, index) =>
+            opacity < 0.01 ? null : (
+              <path d={d} key={index} strokeOpacity={opacity} />
+            ),
+          )}
+        </svg>
+      )
+      : activeResolved;
 
   return (
     <Fragment>
@@ -182,15 +285,7 @@ export function IconTransition({
       <span ref={targetHostRef} style={hiddenStyle} aria-hidden="true">
         {resolvedTarget}
       </span>
-      {pairs ? (
-        <svg {...visibleSvgProps(activeSource)}>
-          {interpolatePaths(pairs, progress).map(({ d, opacity }, index) =>
-            opacity < 0.01 ? null : (
-              <path d={d} key={index} strokeOpacity={opacity} />
-            ),
-          )}
-        </svg>
-      ) : activeResolved}
+      {visible}
     </Fragment>
   );
 }

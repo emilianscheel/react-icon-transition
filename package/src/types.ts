@@ -1,9 +1,9 @@
-import type { LucideIcon, LucideProps } from "lucide-react";
-import type { ReactElement } from "react";
+import type { ComponentType, ReactElement } from "react";
 
+/** Any React SVG icon: a component or a preconfigured element. */
 export type IconTransitionSource =
-  | LucideIcon
-  | ReactElement<LucideProps, LucideIcon>;
+  | ComponentType<Record<string, unknown>>
+  | ReactElement;
 
 export type IconTransitionEasing =
   | "linear"
@@ -22,4 +22,3 @@ export interface IconTransitionProps {
   easing?: IconTransitionEasing;
   type?: IconTransitionType;
 }
-

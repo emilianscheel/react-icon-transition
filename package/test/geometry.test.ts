@@ -1,10 +1,16 @@
 import { describe, expect, test } from "bun:test";
+import { GlobalRegistrator } from "@happy-dom/global-registrator";
 import {
   centroid,
   interpolatePaths,
+  isFillOnlyIcon,
+  mapPoint,
+  mapStroke,
   pairStrokes,
+  parseViewBox,
 } from "../src/geometry";
 import type { Point } from "../src/geometry";
+import { installSvgGeometryPolyfill } from "./svgGeometryPolyfill";
 
 function stroke(...coords: number[]): { points: Point[] } {
   const points: Point[] = [];
@@ -60,5 +66,39 @@ describe("geometry normalization", () => {
     const appearing = pairStrokes([], [stroke(2, 2, 6, 2)])[0]!;
     expect(interpolatePaths([appearing], 0)[0]!.opacity).toBe(0);
     expect(interpolatePaths([appearing], 1)[0]!.opacity).toBe(1);
+  });
+
+  test("maps points between viewBoxes", () => {
+    const from = { x: 0, y: 0, width: 100, height: 50 };
+    const to = { x: 0, y: 0, width: 24, height: 24 };
+    expect(mapPoint({ x: 50, y: 25 }, from, to)).toEqual({ x: 12, y: 12 });
+    expect(mapStroke(stroke(0, 0, 100, 50), from, to).points).toEqual([
+      { x: 0, y: 0 },
+      { x: 24, y: 24 },
+    ]);
+  });
+
+  test("parses viewBox attributes and detects fill-only icons", () => {
+    GlobalRegistrator.register();
+    installSvgGeometryPolyfill();
+    try {
+      document.body.innerHTML = `
+        <svg id="stroke" viewBox="0 0 48 48" fill="none" stroke="currentColor">
+          <path d="M0 0 L48 0" />
+        </svg>
+        <svg id="fill" viewBox="10 10 20 20" fill="currentColor">
+          <circle cx="20" cy="20" r="5" />
+        </svg>
+      `;
+      const strokeSvg = document.querySelector<SVGSVGElement>("#stroke");
+      const fillSvg = document.querySelector<SVGSVGElement>("#fill");
+      expect(parseViewBox(strokeSvg)).toEqual({ x: 0, y: 0, width: 48, height: 48 });
+      expect(parseViewBox(fillSvg)).toEqual({ x: 10, y: 10, width: 20, height: 20 });
+      expect(isFillOnlyIcon(strokeSvg)).toBe(false);
+      expect(isFillOnlyIcon(fillSvg)).toBe(true);
+      document.body.innerHTML = "";
+    } finally {
+      GlobalRegistrator.unregister();
+    }
   });
 });

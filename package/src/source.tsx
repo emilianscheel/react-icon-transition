@@ -1,16 +1,15 @@
 import { createElement, isValidElement } from "react";
-import type { LucideIcon, LucideProps } from "lucide-react";
 import type { IconTransitionSource } from "./types";
 
 export function resolveSource(source: IconTransitionSource) {
   if (isValidElement(source)) return source;
-  return createElement(source as LucideIcon);
+  return createElement(source);
 }
 
 export function sourceType(source: IconTransitionSource) {
   return isValidElement(source) ? source.type : source;
 }
 
-export function sourceProps(source: IconTransitionSource): LucideProps {
-  return isValidElement<LucideProps>(source) ? source.props : {};
+export function sourceProps(source: IconTransitionSource): Record<string, unknown> {
+  return isValidElement(source) ? (source.props as Record<string, unknown>) : {};
 }

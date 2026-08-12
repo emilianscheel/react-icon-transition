@@ -6,6 +6,58 @@ import { hydrateRoot } from "react-dom/client";
 import { renderToString, renderToStaticMarkup } from "react-dom/server";
 import { IconTransition } from "../src/IconTransition";
 import { resolveSource, sourceProps } from "../src/source";
+import { installSvgGeometryPolyfill } from "./svgGeometryPolyfill";
+
+function StrokePlus({ size = 24 }: { size?: number }) {
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      aria-hidden="true"
+    >
+      <path d="M12 5v14" />
+      <path d="M5 12h14" />
+    </svg>
+  );
+}
+
+function StrokeMinus({ size = 24 }: { size?: number }) {
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      aria-hidden="true"
+    >
+      <path d="M5 12h14" />
+    </svg>
+  );
+}
+
+function FilledCircle({ size = 24 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+      <circle cx="12" cy="12" r="8" />
+    </svg>
+  );
+}
+
+function FilledSquare({ size = 24 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+      <rect x="6" y="6" width="12" height="12" />
+    </svg>
+  );
+}
 
 describe("icon sources", () => {
   test("resolves a component source", () => {
@@ -30,10 +82,25 @@ describe("icon sources", () => {
     expect(target).toContain("lucide-pause");
     expect(target).not.toContain("color:green");
   });
+
+  test("SSR works with custom inline SVG icons", () => {
+    const initial = renderToStaticMarkup(
+      <IconTransition status={false} default={<StrokePlus size={18} />} target={<StrokeMinus size={18} />} />,
+    );
+    const target = renderToStaticMarkup(
+      <IconTransition status default={<StrokePlus size={18} />} target={<StrokeMinus size={18} />} />,
+    );
+    expect(initial).toContain("M12 5v14");
+    expect(target).toContain("M5 12h14");
+    expect(target).not.toContain("M12 5v14");
+  });
 });
 
 describe("hydration", () => {
-  beforeAll(() => GlobalRegistrator.register());
+  beforeAll(() => {
+    GlobalRegistrator.register();
+    installSvgGeometryPolyfill();
+  });
   afterAll(() => GlobalRegistrator.unregister());
 
   test("hydrates the server endpoint without a mismatch", async () => {
@@ -78,6 +145,67 @@ describe("hydration", () => {
       container.remove();
     }
   });
+
+  test("custom stroke SVGs morph with liquid", async () => {
+    const { createRoot } = await import("react-dom/client");
+    const container = document.createElement("div");
+    document.body.append(container);
+    let root: ReturnType<typeof createRoot> | undefined;
+    try {
+      await act(async () => {
+        root = createRoot(container);
+        root.render(
+          <IconTransition
+            status={false}
+            default={<StrokePlus size={18} />}
+            target={<StrokeMinus size={18} />}
+            type="liquid"
+            duration={0}
+          />,
+        );
+        await Promise.resolve();
+      });
+      await act(async () => {
+        await Promise.resolve();
+      });
+      expect(container.querySelector(".icon-transition-blur")).toBeNull();
+      expect(container.querySelector("svg.icon-transition")).not.toBeNull();
+      expect(container.querySelectorAll("svg.icon-transition path").length).toBeGreaterThan(0);
+    } finally {
+      await act(async () => root?.unmount());
+      container.remove();
+    }
+  });
+
+  test("filled SVGs fall back to blur when liquid is requested", async () => {
+    const { createRoot } = await import("react-dom/client");
+    const container = document.createElement("div");
+    document.body.append(container);
+    let root: ReturnType<typeof createRoot> | undefined;
+    try {
+      await act(async () => {
+        root = createRoot(container);
+        root.render(
+          <IconTransition
+            status
+            default={<FilledCircle size={18} />}
+            target={<FilledSquare size={18} />}
+            type="liquid"
+            duration={0}
+          />,
+        );
+        await Promise.resolve();
+      });
+      await act(async () => {
+        await Promise.resolve();
+      });
+      expect(container.querySelector(".icon-transition-blur")).not.toBeNull();
+      expect(container.innerHTML).toContain("rect");
+    } finally {
+      await act(async () => root?.unmount());
+      container.remove();
+    }
+  });
 });
 
 describe("blur type", () => {
@@ -92,4 +220,3 @@ describe("blur type", () => {
     expect(target).toContain("lucide-pause");
   });
 });
-

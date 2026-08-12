@@ -1,17 +1,17 @@
 # react-icon-transition
 
-> Smooth, reversible transitions between Lucide React icons. ~2.2 KB gzip. Client component for React 18+.
+> Smooth, reversible transitions between any React SVG icons. ~2.9 KB gzip. Client component for React 18+.
 
-Animate any two `lucide-react` icons with `IconTransition`. Supports geometry morph (`liquid`) and scale/blur/fade swap (`blur`). Mid-toggle reverse is continuous. Honors `prefers-reduced-motion`.
+Animate any two React SVG icons with `IconTransition`. Supports geometry morph (`liquid`) and scale/blur/fade swap (`blur`). Mid-toggle reverse is continuous. Honors `prefers-reduced-motion`.
 
 ## Install
 
 ```sh
-bun add react-icon-transition lucide-react
-# or: npm install react-icon-transition lucide-react
+bun add react-icon-transition
+# or: npm install react-icon-transition
 ```
 
-Peer dependencies: `react`, `react-dom`, `lucide-react`.
+Peer dependencies: `react`, `react-dom`.
 
 ## Quick start
 
@@ -40,6 +40,8 @@ export function PlayerButton() {
 }
 ```
 
+Works with Lucide, Heroicons, inline `<svg>`, or any other React SVG icon component/element.
+
 ## API
 
 Exported: `IconTransition`, types `IconTransitionProps`, `IconTransitionSource`, `IconTransitionEasing`, `IconTransitionType`.
@@ -47,17 +49,17 @@ Exported: `IconTransition`, types `IconTransitionProps`, `IconTransitionSource`,
 | Prop | Type | Default | Notes |
 | --- | --- | --- | --- |
 | `status` | `boolean` | required | `false` shows `default`, `true` shows `target` |
-| `default` | `LucideIcon \| ReactElement<LucideProps>` | required | Outgoing / off-state icon |
-| `target` | `LucideIcon \| ReactElement<LucideProps>` | required | Incoming / on-state icon |
+| `default` | `ComponentType \| ReactElement` | required | Outgoing / off-state icon |
+| `target` | `ComponentType \| ReactElement` | required | Incoming / on-state icon |
 | `duration` | `number` | `300` | Milliseconds for a full 0→1 transition; mid-toggle uses remaining distance |
 | `easing` | `linear \| ease \| ease-in \| ease-out \| ease-in-out` | `ease-in-out` | Timing curve |
 | `type` | `liquid \| blur` | `liquid` | Transition style |
 
-`default` and `target` accept a Lucide component or a configured element. Endpoint props (color, size, aria) are independent. SSR renders the endpoint selected by `status` (no morph).
+`default` and `target` accept a component or a configured element. Endpoint props (color, size, aria) are independent. SSR renders the endpoint selected by `status` (no morph).
 
 ### type="liquid"
 
-Morphs sampled SVG stroke geometry between icons. Unmatched strokes collapse to their centroid and fade. Best for outline/stroke Lucide icons.
+Morphs sampled SVG stroke geometry between icons. Unmatched strokes collapse to their centroid and fade. Best for outline/stroke icons. Different viewBoxes are normalized into a shared space. Filled icons or icons with no sampleable geometry automatically fall back to `blur`. Nested transforms / `<use>` / gradients are not specially handled.
 
 ### type="blur"
 

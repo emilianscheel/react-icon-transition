@@ -25,7 +25,7 @@ const INSTALL_CMD = "bun install react-icon-transition";
 const cardClass =
   "w-full rounded-lg border border-neutral-200 bg-neutral-50 px-3 py-2 text-left";
 
-type DemoId = "play" | "sun" | "volume" | "menu";
+type DemoId = "play" | "sun" | "volume" | "menu" | "plus";
 
 const demos: {
   id: DemoId;
@@ -67,6 +67,14 @@ const demos: {
     toName: "X",
     label: "Menu Close",
   },
+  {
+    id: "plus",
+    from: <StrokePlus />,
+    to: <StrokeMinus />,
+    fromName: "StrokePlus",
+    toName: "StrokeMinus",
+    label: "Plus Minus",
+  },
 ];
 
 const initialActive: Record<DemoId, boolean> = {
@@ -74,7 +82,43 @@ const initialActive: Record<DemoId, boolean> = {
   sun: false,
   volume: false,
   menu: false,
+  plus: false,
 };
+
+function StrokePlus() {
+  return (
+    <svg
+      width={18}
+      height={18}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      aria-hidden="true"
+    >
+      <path d="M12 5v14" />
+      <path d="M5 12h14" />
+    </svg>
+  );
+}
+
+function StrokeMinus() {
+  return (
+    <svg
+      width={18}
+      height={18}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      aria-hidden="true"
+    >
+      <path d="M5 12h14" />
+    </svg>
+  );
+}
 
 function GitHubIcon({ className }: { className?: string }) {
   return (
@@ -316,7 +360,7 @@ export default function Home() {
         <div className="flex w-full max-w-md flex-col items-center gap-5 text-center">
           <h1 className="flex animate-fade-up items-baseline justify-center gap-2 text-base font-medium tracking-tight [animation-delay:40ms]">
             <span>react-icon-transition</span>
-            <span className="font-medium text-neutral-400">~2.2 KB gzip</span>
+            <span className="font-medium text-neutral-400">~2.9 KB gzip</span>
           </h1>
           <p className="animate-fade-up text-xs text-neutral-400 [animation-delay:120ms] sm:text-sm">
             animate any svg icon in react

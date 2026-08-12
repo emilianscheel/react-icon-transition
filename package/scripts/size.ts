@@ -12,7 +12,7 @@ const result = await Bun.build({
   format: "esm",
   target: "browser",
   minify: true,
-  external: ["react", "react/jsx-runtime", "lucide-react"],
+  external: ["react", "react/jsx-runtime"],
   banner: '"use client";',
 });
 

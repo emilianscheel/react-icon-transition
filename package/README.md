@@ -1,12 +1,14 @@
 # react-icon-transition
 
-animate any svg icon in react
+Smooth, reversible transitions between any two React SVG icons — geometry morph (`liquid`) or scale-and-blur swap (`blur`).
+
+## Install
 
 ```sh
 bun add react-icon-transition
 ```
 
-## Example
+## Use
 
 ```tsx
 "use client";
@@ -32,15 +34,20 @@ export function PlayerButton() {
 }
 ```
 
+`default` and `target` each accept any React SVG icon: a component or a configured
+element (Lucide, Heroicons, inline `<svg>`, etc.). Endpoint props are independent.
+The component renders the selected endpoint during SSR, reverses from its current
+geometry when toggled mid-animation, and honors `prefers-reduced-motion`.
+
 ## API
 
 | Prop       | Type                                                   | Default       |
 | ---------- | ------------------------------------------------------ | ------------- |
 | `status`   | `boolean`                                              | required      |
-| `default`  | `LucideIcon \| ReactElement<LucideProps>`              | required      |
-| `target`   | `LucideIcon \| ReactElement<LucideProps>`              | required      |
+| `default`  | `ComponentType \| ReactElement`                        | required      |
+| `target`   | `ComponentType \| ReactElement`                        | required      |
 | `duration` | `number`                                               | `300`         |
 | `easing`   | `linear \| ease \| ease-in \| ease-out \| ease-in-out` | `ease-in-out` |
 | `type`     | `liquid \| blur`                                       | `liquid`      |
 
-`liquid` morphs stroke geometry between icons. `blur` scales down and blurs, swaps the icon at the midpoint, then unblurs and scales back up.
+`liquid` morphs stroke geometry between icons. Best for outline/stroke SVGs. Filled icons (or icons with no sampleable geometry) automatically fall back to `blur`. `blur` scales down and blurs, swaps the icon at the midpoint, then unblurs and scales back up.

@@ -1,7 +1,7 @@
 {
   "name": "react-icon-transition",
   "version": "0.1.1",
-  "description": "Smooth, reversible geometry transitions between Lucide React icons.",
+  "description": "Smooth, reversible transitions between any React SVG icons.",
   "license": "MIT",
   "type": "module",
   "sideEffects": false,
@@ -21,7 +21,7 @@
   ],
   "keywords": [
     "react",
-    "lucide",
+    "svg",
     "icons",
     "animation",
     "morph",
@@ -36,7 +36,7 @@
   },
   "homepage": "https://github.com/emilianscheel/react-icon-transition#readme",
   "scripts": {
-    "build:js": "NODE_ENV=production bun build ./src/index.ts --outdir ./dist --format esm --target browser --external react --external react/jsx-runtime --external lucide-react --minify --banner '\"use client\";'",
+    "build:js": "NODE_ENV=production bun build ./src/index.ts --outdir ./dist --format esm --target browser --external react --external react/jsx-runtime --minify --banner '\"use client\";'",
     "build": "bun run build:js && bunx tsc -p tsconfig.build.json",
     "check": "bunx tsc --noEmit",
     "test": "bun test",
@@ -47,7 +47,6 @@
     "release": "bun ./scripts/release.ts"
   },
   "peerDependencies": {
-    "lucide-react": ">=0.468.0",
     "react": ">=18.2.0",
     "react-dom": ">=18.2.0"
   },
