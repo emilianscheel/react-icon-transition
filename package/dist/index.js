@@ -210,7 +210,7 @@ function sourceProps(source) {
 }
 
 // src/IconTransition.tsx
-import { jsxDEV } from "react/jsx-dev-runtime";
+import { jsx, jsxs } from "react/jsx-runtime";
 var DEFAULT_TYPE = "liquid";
 var hiddenStyle = {
   position: "absolute",
@@ -340,39 +340,39 @@ function IconTransition({
   if (!isLiquid) {
     const frame = blurFrame(progress);
     const icon = frame.showTarget ? resolvedTarget : resolvedDefault;
-    return /* @__PURE__ */ jsxDEV("span", {
+    return /* @__PURE__ */ jsx("span", {
       className: "icon-transition icon-transition-blur",
       style: blurWrapperStyle(frame.scale, frame.blur, frame.opacity),
       children: icon
-    }, undefined, false, undefined, this);
+    });
   }
-  return /* @__PURE__ */ jsxDEV(Fragment, {
+  return /* @__PURE__ */ jsxs(Fragment, {
     children: [
-      /* @__PURE__ */ jsxDEV("span", {
+      /* @__PURE__ */ jsx("span", {
         ref: defaultHostRef,
         style: hiddenStyle,
         "aria-hidden": "true",
         children: resolvedDefault
-      }, undefined, false, undefined, this),
-      /* @__PURE__ */ jsxDEV("span", {
+      }),
+      /* @__PURE__ */ jsx("span", {
         ref: targetHostRef,
         style: hiddenStyle,
         "aria-hidden": "true",
         children: resolvedTarget
-      }, undefined, false, undefined, this),
-      pairs ? /* @__PURE__ */ jsxDEV("svg", {
+      }),
+      pairs ? /* @__PURE__ */ jsx("svg", {
         ...visibleSvgProps(activeSource),
-        children: interpolatePaths(pairs, progress).map(({ d, opacity }, index) => opacity < 0.01 ? null : /* @__PURE__ */ jsxDEV("path", {
+        children: interpolatePaths(pairs, progress).map(({ d, opacity }, index) => opacity < 0.01 ? null : /* @__PURE__ */ jsx("path", {
           d,
           strokeOpacity: opacity
-        }, index, false, undefined, this))
-      }, undefined, false, undefined, this) : activeResolved
+        }, index))
+      }) : activeResolved
     ]
-  }, undefined, true, undefined, this);
+  });
 }
 export {
   IconTransition
 };
 
-//# debugId=C62DA0F20CDDE45364756E2164756E21
+//# debugId=EBAFE06FE0A9164E64756E2164756E21
 //# sourceMappingURL=index.js.map

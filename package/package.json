@@ -36,11 +36,12 @@
   },
   "homepage": "https://github.com/emilianscheel/react-icon-transition#readme",
   "scripts": {
-    "build": "bun build ./src/index.ts --outdir ./dist --format esm --target browser --external react --external react/jsx-runtime --external lucide-react --sourcemap --banner '\"use client\";' && bunx tsc -p tsconfig.build.json",
+    "build:js": "NODE_ENV=production bun build ./src/index.ts --outdir ./dist --format esm --target browser --external react --external react/jsx-runtime --external lucide-react --sourcemap --banner '\"use client\";'",
+    "build": "bun run build:js && bunx tsc -p tsconfig.build.json",
     "check": "bunx tsc --noEmit",
     "test": "bun test",
     "pack:dry": "bun pm pack --dry-run",
-    "prepare": "bun build ./src/index.ts --outdir ./dist --format esm --target browser --external react --external react/jsx-runtime --external lucide-react --sourcemap --banner '\"use client\";'",
+    "prepare": "bun run build:js",
     "prepublishOnly": "bun run check && bun test && bun run build",
     "release": "bun ./scripts/release.ts"
   },
