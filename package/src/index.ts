@@ -3,4 +3,5 @@ export type {
   IconTransitionEasing,
   IconTransitionProps,
   IconTransitionSource,
+  IconTransitionType,
 } from "./types";

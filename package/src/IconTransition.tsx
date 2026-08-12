@@ -6,8 +6,8 @@ import {
   useRef,
   useState,
 } from "react";
-import type { SVGProps } from "react";
-import type { LucideProps } from "lucide-react";
+import type { CSSProperties, SVGProps } from "react";
+import { blurFrame } from "./blur";
 import {
   DEFAULT_EASING,
   getAnimationDuration,
@@ -19,6 +19,8 @@ import type { StrokePair } from "./geometry";
 import { prefersReducedMotion } from "./motion";
 import { resolveSource, sourceProps, sourceType } from "./source";
 import type { IconTransitionProps, IconTransitionSource } from "./types";
+
+const DEFAULT_TYPE = "liquid" as const;
 
 const hiddenStyle = {
   position: "absolute",
@@ -65,13 +67,24 @@ function visibleSvgProps(source: IconTransitionSource): SVGProps<SVGSVGElement> 
   };
 }
 
+function blurWrapperStyle(scale: number, blur: number): CSSProperties {
+  return {
+    display: "inline-flex",
+    transform: `scale(${scale})`,
+    filter: blur > 0.01 ? `blur(${blur}px)` : undefined,
+    transformOrigin: "center",
+  };
+}
+
 export function IconTransition({
   status,
   default: defaultSource,
   target: targetSource,
   duration,
   easing = DEFAULT_EASING,
+  type = DEFAULT_TYPE,
 }: IconTransitionProps) {
+  const isLiquid = type === "liquid";
   const [mounted, setMounted] = useState(false);
   const [pairs, setPairs] = useState<StrokePair[] | null>(null);
   const [progress, setProgress] = useState(status ? 1 : 0);
@@ -92,7 +105,10 @@ export function IconTransition({
   }, []);
 
   useLayoutEffect(() => {
-    if (!mounted) return;
+    if (!mounted || !isLiquid) {
+      if (!isLiquid) setPairs(null);
+      return;
+    }
     const defaultSvg = defaultHostRef.current?.querySelector("svg") ?? null;
     const targetSvg = targetHostRef.current?.querySelector("svg") ?? null;
     const nextPairs = pairStrokes(sampleSvg(defaultSvg), sampleSvg(targetSvg));
@@ -100,10 +116,10 @@ export function IconTransition({
     const initialProgress = status ? 1 : 0;
     progressRef.current = initialProgress;
     setProgress(initialProgress);
-  }, [mounted, defaultGeometryType, targetGeometryType]);
+  }, [mounted, isLiquid, defaultGeometryType, targetGeometryType]);
 
   useEffect(() => {
-    if (!pairs) return;
+    if (isLiquid && !pairs) return;
     if (frameRef.current !== null) cancelAnimationFrame(frameRef.current);
 
     const targetProgress = status ? 1 : 0;
@@ -138,12 +154,25 @@ export function IconTransition({
     return () => {
       if (frameRef.current !== null) cancelAnimationFrame(frameRef.current);
     };
-  }, [status, pairs, duration, easing]);
+  }, [status, pairs, duration, easing, isLiquid]);
 
   const activeSource = status ? targetSource : defaultSource;
   const activeResolved = status ? resolvedTarget : resolvedDefault;
 
   if (!mounted) return activeResolved;
+
+  if (!isLiquid) {
+    const frame = blurFrame(progress);
+    const icon = frame.showTarget ? resolvedTarget : resolvedDefault;
+    return (
+      <span
+        className="icon-transition icon-transition-blur"
+        style={blurWrapperStyle(frame.scale, frame.blur)}
+      >
+        {icon}
+      </span>
+    );
+  }
 
   return (
     <Fragment>

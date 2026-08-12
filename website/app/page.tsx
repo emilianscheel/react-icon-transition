@@ -1,7 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
+  Check,
+  Copy,
   Menu,
   Moon,
   Pause,
@@ -10,10 +12,15 @@ import {
   Volume2,
   VolumeX,
   X,
-  type LucideIcon,
 } from "lucide-react";
-import { IconTransition, type IconTransitionSource } from "icon-transition";
+import {
+  IconTransition,
+  type IconTransitionSource,
+  type IconTransitionType,
+} from "icon-transition";
 import { Button } from "@/components/ui/button";
+
+const INSTALL_CMD = "bun install react-icon-transition";
 
 function GitHubIcon({ className }: { className?: string }) {
   return (
@@ -30,23 +37,41 @@ function GitHubIcon({ className }: { className?: string }) {
 
 const demos: {
   from: IconTransitionSource;
-  to: LucideIcon;
+  to: IconTransitionSource;
   label: string;
 }[] = [
-  { from: <Play aria-hidden="true" />, to: Pause, label: "Play Pause" },
-  { from: <Sun aria-hidden="true" />, to: Moon, label: "Sun Moon" },
-  { from: <Volume2 aria-hidden="true" />, to: VolumeX, label: "Volume Mute" },
-  { from: <Menu aria-hidden="true" />, to: X, label: "Menu Close" },
+  {
+    from: <Play aria-hidden="true" size={18} />,
+    to: <Pause aria-hidden="true" size={18} />,
+    label: "Play Pause",
+  },
+  {
+    from: <Sun aria-hidden="true" size={18} />,
+    to: <Moon aria-hidden="true" size={18} />,
+    label: "Sun Moon",
+  },
+  {
+    from: <Volume2 aria-hidden="true" size={18} />,
+    to: <VolumeX aria-hidden="true" size={18} />,
+    label: "Volume Mute",
+  },
+  {
+    from: <Menu aria-hidden="true" size={18} />,
+    to: <X aria-hidden="true" size={18} />,
+    label: "Menu Close",
+  },
 ];
 
 function Demo({
   from,
   to,
   label,
+  type,
 }: {
   from: IconTransitionSource;
-  to: LucideIcon;
+  to: IconTransitionSource;
   label: string;
+  type: IconTransitionType;
 }) {
   const [active, setActive] = useState(false);
 
@@ -56,21 +81,86 @@ function Demo({
       onClick={() => setActive((value) => !value)}
       aria-pressed={active}
       aria-label={label}
-      className="flex size-16 items-center justify-center text-foreground sm:size-20"
+      className="flex size-9 cursor-pointer items-center justify-center rounded-full text-foreground transition-colors hover:bg-neutral-100"
     >
-      <IconTransition status={active} default={from} target={to} />
+      <IconTransition
+        status={active}
+        default={from}
+        target={to}
+        type={type}
+      />
     </button>
+  );
+}
+
+function DemoRow({
+  type,
+  title,
+}: {
+  type: IconTransitionType;
+  title: string;
+}) {
+  return (
+    <div className="flex flex-col items-center gap-2">
+      <p className="text-[10px] tracking-wide text-neutral-500 uppercase">{title}</p>
+      <div className="flex flex-wrap items-center justify-center gap-1.5 sm:gap-2">
+        {demos.map((demo) => (
+          <Demo
+            key={`${type}-${demo.label}`}
+            {...demo}
+            type={type}
+            label={`${demo.label} ${type}`}
+          />
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function InstallBox() {
+  const [copied, setCopied] = useState(false);
+  const timerRef = useRef<number | null>(null);
+
+  useEffect(() => () => {
+    if (timerRef.current !== null) window.clearTimeout(timerRef.current);
+  }, []);
+
+  async function copy() {
+    await navigator.clipboard.writeText(INSTALL_CMD);
+    setCopied(true);
+    if (timerRef.current !== null) window.clearTimeout(timerRef.current);
+    timerRef.current = window.setTimeout(() => setCopied(false), 1600);
+  }
+
+  return (
+    <div className="flex items-center gap-1.5 rounded-lg border border-neutral-200 bg-neutral-50 px-2.5 py-1.5 pl-3">
+      <code className="text-xs sm:text-sm">{INSTALL_CMD}</code>
+      <Button
+        type="button"
+        variant="ghost"
+        size="icon"
+        onClick={copy}
+        aria-label={copied ? "Copied" : "Copy install command"}
+        className="size-7 shrink-0 cursor-pointer rounded-md"
+      >
+        <IconTransition
+          status={copied}
+          default={<Copy aria-hidden="true" size={16} />}
+          target={<Check aria-hidden="true" size={16} />}
+        />
+      </Button>
+    </div>
   );
 }
 
 export default function Home() {
   return (
-    <main className="relative flex min-h-svh flex-col items-center justify-center gap-10 bg-white px-6 text-black">
+    <main className="relative flex min-h-svh flex-col items-center justify-center gap-8 bg-white px-6 text-sm text-black">
       <Button
         asChild
         variant="outline"
         size="icon"
-        className="absolute top-4 right-4 rounded-full sm:top-6 sm:right-6"
+        className="absolute top-4 right-4 cursor-pointer rounded-full sm:top-6 sm:right-6"
       >
         <a
           href="https://github.com/emilianscheel/react-icon-transition"
@@ -82,17 +172,16 @@ export default function Home() {
         </a>
       </Button>
 
-      <div className="flex flex-col items-center gap-2 text-center">
-        <code className="text-sm sm:text-base">bun install react-icon-transition</code>
-        <h1 className="text-lg font-medium tracking-tight sm:text-xl">
+      <div className="flex flex-col items-center gap-3 text-center">
+        <h1 className="text-base font-medium tracking-tight">
           react-icon-transition
         </h1>
+        <InstallBox />
       </div>
 
-      <div className="flex flex-wrap items-center justify-center gap-4 sm:gap-8">
-        {demos.map((demo) => (
-          <Demo key={demo.label} {...demo} />
-        ))}
+      <div className="flex flex-col items-center gap-6">
+        <DemoRow type="liquid" title="liquid" />
+        <DemoRow type="blur" title="blur" />
       </div>
     </main>
   );

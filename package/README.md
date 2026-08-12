@@ -1,6 +1,6 @@
 # icon-transition
 
-Smooth, reversible geometry transitions between any two `lucide-react` icons.
+Smooth, reversible transitions between any two `lucide-react` icons — geometry morph (`liquid`) or scale-and-blur swap (`blur`).
 
 ## Install
 
@@ -48,6 +48,9 @@ mid-animation, and honors `prefers-reduced-motion`.
 | `target` | `LucideIcon \| ReactElement<LucideProps>` | required |
 | `duration` | `number` | `300` |
 | `easing` | `linear \| ease \| ease-in \| ease-out \| ease-in-out` | `ease-in-out` |
+| `type` | `liquid \| blur` | `liquid` |
+
+`liquid` morphs stroke geometry between icons. `blur` scales down and blurs, swaps the icon at the midpoint, then unblurs and scales back up.
 
 ## Develop
 

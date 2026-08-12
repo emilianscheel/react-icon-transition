@@ -57,5 +57,39 @@ describe("hydration", () => {
       container.remove();
     }
   });
+
+  test("blur type client render shows the target icon when status is true", async () => {
+    const { createRoot } = await import("react-dom/client");
+    const container = document.createElement("div");
+    document.body.append(container);
+    let root: ReturnType<typeof createRoot> | undefined;
+    try {
+      await act(async () => {
+        root = createRoot(container);
+        root.render(
+          <IconTransition status default={Play} target={Pause} type="blur" duration={0} />,
+        );
+        await Promise.resolve();
+      });
+      expect(container.innerHTML).toContain("lucide-pause");
+      expect(container.querySelector(".icon-transition-blur")).not.toBeNull();
+    } finally {
+      await act(async () => root?.unmount());
+      container.remove();
+    }
+  });
+});
+
+describe("blur type", () => {
+  test("SSR renders the endpoint selected by status", () => {
+    const initial = renderToStaticMarkup(
+      <IconTransition status={false} default={Play} target={Pause} type="blur" />,
+    );
+    const target = renderToStaticMarkup(
+      <IconTransition status default={Play} target={Pause} type="blur" />,
+    );
+    expect(initial).toContain("lucide-play");
+    expect(target).toContain("lucide-pause");
+  });
 });
 

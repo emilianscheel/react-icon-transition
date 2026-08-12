@@ -12,11 +12,14 @@ export type IconTransitionEasing =
   | "ease-out"
   | "ease-in-out";
 
+export type IconTransitionType = "liquid" | "blur";
+
 export interface IconTransitionProps {
   status: boolean;
   default: IconTransitionSource;
   target: IconTransitionSource;
   duration?: number;
   easing?: IconTransitionEasing;
+  type?: IconTransitionType;
 }
 
