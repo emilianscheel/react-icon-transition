@@ -25,6 +25,9 @@
     "paths": {
       "@/*": [
         "./*"
+      ],
+      "icon-transition": [
+        "../package/src/index.ts"
       ]
     }
   },
