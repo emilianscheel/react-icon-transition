@@ -133,23 +133,21 @@ function InstallBox() {
   }
 
   return (
-    <div className="flex items-center gap-1.5 rounded-lg border border-neutral-200 bg-neutral-50 px-2.5 py-1.5 pl-3">
+    <button
+      type="button"
+      onClick={copy}
+      aria-label={copied ? "Copied" : "Copy install command"}
+      className="flex cursor-pointer items-center gap-1.5 rounded-lg border border-neutral-200 bg-neutral-50 px-2.5 py-1.5 pl-3 transition-colors hover:bg-neutral-100"
+    >
       <code className="text-xs sm:text-sm">{INSTALL_CMD}</code>
-      <Button
-        type="button"
-        variant="ghost"
-        size="icon"
-        onClick={copy}
-        aria-label={copied ? "Copied" : "Copy install command"}
-        className="size-7 shrink-0 cursor-pointer rounded-md"
-      >
+      <span className="flex size-7 shrink-0 items-center justify-center" aria-hidden="true">
         <IconTransition
           status={copied}
           default={<Copy aria-hidden="true" size={16} />}
           target={<Check aria-hidden="true" size={16} />}
         />
-      </Button>
-    </div>
+      </span>
+    </button>
   );
 }
 
