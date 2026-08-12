@@ -40,7 +40,7 @@
     "check": "bunx tsc --noEmit",
     "test": "bun test",
     "pack:dry": "bun pm pack --dry-run",
-    "prepare": "bun run build",
+    "prepare": "bun build ./src/index.ts --outdir ./dist --format esm --target browser --external react --external react/jsx-runtime --external lucide-react --sourcemap --banner '\"use client\";'",
     "prepublishOnly": "bun run check && bun test && bun run build",
     "release": "bun ./scripts/release.ts"
   },
