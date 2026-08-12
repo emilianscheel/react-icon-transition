@@ -36,7 +36,7 @@
   },
   "homepage": "https://github.com/emilianscheel/react-icon-transition#readme",
   "scripts": {
-    "build:js": "NODE_ENV=production bun build ./src/index.ts --outdir ./dist --format esm --target browser --external react --external react/jsx-runtime --minify --banner '\"use client\";'",
+    "build:js": "bun ./scripts/build-js.ts",
     "build": "bun run build:js && bunx tsc -p tsconfig.build.json",
     "check": "bunx tsc --noEmit",
     "test": "bun test",
